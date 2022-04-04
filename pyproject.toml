@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "r-place-blender"
+version = "0.1.0"
+description = "r/place visualized using Python and Blender"
+authors = ["Christopher Kumm <chrislkumm@protonmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Pillow = "^9.1.0"
+black = "^22.3.0"
+mypy = "^0.942"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
