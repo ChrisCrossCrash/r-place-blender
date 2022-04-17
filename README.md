@@ -1,7 +1,14 @@
 # r/Place Python and Blender Data Visualization
 
+Python scripts for:
+
+1. [Trimming and formatting the r/Place 2022 dataset](guides/1_trim_and_format.ipynb)
+2. [Generating color and age maps for use in Blender](guides/2_generate_maps.ipynb)
+3. [Rendering r/Place in 3D with Blender](guides/3_blender.md)
+
 ![The Blender logo in r/Place, rendered in Blender](images/blender-logo.jpg)
 
+The scripts can be run with Jupyter notebook guides, or by using the provided command line tool.
 
 ## Prerequisites
 
@@ -44,12 +51,38 @@ Some basic knowledge of Python and Blender is assumed. If you are a beginner, he
    ```
    poetry install
    ```
-7. Open the Jupyter notebook with:
-   ```
-   jupyter notebook guide.ipynb
-   ```
-   Follow the guide and execute the code cells to produce the color and age frames that will be loaded in Blender.
-8. Open `r-place.blend` in Blender. If you produced the age and color frames with the Jupyter notebook, they will be loaded automatically.
+
+## Running the Scripts with Jypyter Notebook
+
+For a tutorial-like experience, you can run the scripts in Jupyter notebook. They allow you read along with the code and see the output.
+
+In the command line, `cd` into the root of this repository. With the virtual environment activated, open the notebook by entering the following command and clicking on one of the listed guides:
+```
+jupyter notebook guide.ipynb
+```
+Follow the guide and execute the code cells to execute each step of the process.
+
+## Running the Scripts with the Command Line
+
+In the command line, `cd` into the root of this repository. With the virtual environment activated, run the following command:
+```
+python scripts/cli.py --help
+```
+For help with one of the subcommands, execute:
+```
+python scripts/cli.py <subcommand> --help
+```
+### Examples
+
+Process the raw data and save it in `2022_place_canvas_history.parquet`:
+```
+python scripts/cli.py trim data/2022_place_canvas_history.csv.gzip data/2022_place_canvas_history.parquet
+```
+Starting at the 72-hour mark, generate 1000 frames at 30 FPS at 1000x speed. Store the results in `data/frames_color` and `data/frames_age`:
+
+```
+python scripts/cli.py generate data/2022_place_canvas_history.parquet data/frames_color data/frames_age --start_ms 259200000 --timescale 1000 --frames 1000 --fps 30
+```
 
 ## Development
 
@@ -59,3 +92,8 @@ Use the following command to generate a new `requirements.txt` file for non-Poet
 ```
 poetry export --without-hashes > requirements.txt
 ```
+
+## Other Fun Stuff
+
+- [the r/Place Atlas (2022)](https://place-atlas.stefanocoding.me/): A searchable map of the r/Place canvas descriptions of all the different artworks.
+- [PlaceViewer](https://github.com/GregBahm/PlaceViewer): r/Place in VR.
