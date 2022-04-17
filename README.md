@@ -1,15 +1,14 @@
 # r/Place Python and Blender Data Visualization
 
+![The Blender logo in r/Place, rendered in Blender](images/blender-logo.jpg)
 
-
-<!-- TODO: Put an image here -->
 
 ## Prerequisites
 
 - Python >=3.10 (tested on 3.10.2)
 - Blender >=3.1 (tested on 3.1.2)
-- ~6 GB of free RAM (for processing the data)
-- ~30 GB of free space on the hard drive (until the raw data is trimmed)
+- ~4 GB of free RAM (for processing the data)
+- ~15 GB of free space on the hard drive (until the raw data is trimmed)
 - It helps to have a powerful GPU for rendering the frames in Blender.
 
 Some basic knowledge of Python and Blender is assumed. If you are a beginner, here are some Tutorials I highly recommend:
@@ -21,11 +20,7 @@ Some basic knowledge of Python and Blender is assumed. If you are a beginner, he
 
 1. Install [Python](https://www.python.org/) and [Blender](https://www.blender.org/download/) if you haven't already.
 2. Clone this repository (or download it as a Zip file and extract).
-3. Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) as a single file. Extract it to a directory named `data` at the root the repository. The dataset is compressed in GZIP format, so if you use Windows, you'll need to use the [7-Zip](https://www.7-zip.org/) or some other program to extract it. If you are using Linux (or have a Linux distro on [WSL](https://docs.microsoft.com/en-us/windows/wsl/about)), you can simply extract it with:
-   ```
-   gunzip -S .gzip 2022_place_canvas_history.csv.gzip
-   ```
-   Extracting the file took about 5-10 minutes on my laptop, so be patient.
+3. Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) as a single file. Do not extract it.
 4. Open the repository in a terminal and create a new virtual environment with:
    ```
    python3 -m venv .venv
