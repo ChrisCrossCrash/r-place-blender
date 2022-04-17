@@ -6,12 +6,14 @@ from progressbar import ProgressBar
 
 
 CHUNK_SIZE = 1_000_000
+START_TIME = 1648806250315
 
 
 def parse_timestamp(timestamp):
     """Convert a YYYY-MM-DD HH:MM:SS.SSS timestamp to milliseconds after the start of r/Place 2022."""
     date_format = "%Y-%m-%d %H:%M:%S.%f"
     try:
+        # Remove the UTC timezone from the timestamp and convert it to a POSIX timestamp.
         timestamp = datetime.strptime(timestamp[:-4], date_format).timestamp()
     except ValueError:
         # The timestamp is exactly on the second, so there is no decimal (%f).
@@ -24,9 +26,9 @@ def parse_timestamp(timestamp):
 
     # The earliest timestamp is 1648806250315, so subtract that from each timestamp
     # to get the time in milliseconds since the beginning of the experiment.
-    timestamp -= 1648806250315
+    timestamp -= START_TIME
 
-    return str(timestamp)
+    return timestamp
 
 
 def parse_pixel_color(pixel_color):
@@ -69,35 +71,30 @@ def parse_pixel_color(pixel_color):
     return hex_to_key[pixel_color]
 
 
-def process_chunk(chunk, df):
-    """Process a chunk of data and append it to a dataframe."""
-    chunk["timestamp"] = chunk["timestamp"].astype("uint32")
-    chunk["pixel_color"] = chunk["pixel_color"].astype("uint8")
+def split_coords_single_points(points):
+    """
+    Given a dataframe containing only rows that have single-point
+    coordinates, split the coordinates into x and y columns.
+    """
 
-    # Group by point and rectangle coordinates.
-    # Points have x and y coordinates, rectangles have x1, y1, x2, y2 coordinates.
-    # We can determine the type of the coordinate by the number of commas.
-    groups = chunk.groupby(chunk["coordinate"].str.count(",") == 1)
-    rectangles = None
-    points = groups.get_group(True).reset_index(drop=True)
-    try:
-        rectangles = groups.get_group(False).reset_index(drop=True)
-    except KeyError:
-        # There are no rectangles in this chunk.
-        pass
-
-    # Convert point's coordinate column into x and y columns.
+    # Convert the coordinate column to a list of strings.
     points["coordinate"] = points["coordinate"].apply(lambda x: x.split(","))
+
+    # Create new x and y columns from the coordinate column.
     points["x"] = points["coordinate"].apply(lambda x: x[0]).astype("uint16")
     points["y"] = points["coordinate"].apply(lambda x: x[1]).astype("uint16")
+
+    # Drop the coordinate column.
     del points["coordinate"]
 
-    # Append the points to the dataframe.
-    df = pd.concat((df, points), ignore_index=True)
+    return points
 
-    if rectangles is None:
-        # If this chunk has no rectangles.
-        return df
+
+def split_coords_rectangles(rectangles):
+    """
+    Given a dataframe containing only rows that have rectangle coordinates,
+    convert the rectangle rows to point rows with x and y columns.
+    """
 
     # Separate the rectangle coordinate string into a list of ints.
     rectangles["coordinate"] = rectangles["coordinate"].apply(
@@ -133,7 +130,39 @@ def process_chunk(chunk, df):
     pts_from_recs["x"] = pts_from_recs["x"].astype("uint16")
     pts_from_recs["y"] = pts_from_recs["y"].astype("uint16")
 
-    return pd.concat((df, pts_from_recs), ignore_index=True)
+    return pts_from_recs
+
+
+def process_chunk(chunk, df):
+    """Process a chunk of data and append it to a dataframe."""
+    # Convert the timestamp and pixel_color columns to the correct dtypes.
+    chunk["timestamp"] = chunk["timestamp"].astype("uint32")
+    chunk["pixel_color"] = chunk["pixel_color"].astype("uint8")
+
+    # Group by point and rectangle coordinates.
+    # Points have x and y coordinates, rectangles have x1, y1, x2, y2 coordinates.
+    # We can determine the type of the coordinate by the number of commas.
+    groups = chunk.groupby(chunk["coordinate"].str.count(",") == 1)
+    rectangles = None
+    points = groups.get_group(True).reset_index(drop=True)
+    try:
+        rectangles = groups.get_group(False).reset_index(drop=True)
+    except KeyError:
+        # There are no rectangles in this chunk.
+        pass
+
+    # Convert point's coordinate column into x and y columns.
+    points = split_coords_single_points(points)
+
+    # Append the points to the dataframe.
+    df = pd.concat((df, points), ignore_index=True)
+
+    # If this chunk has rectangles, convert them into point coordinates.
+    if rectangles is not None:
+        rectangles = split_coords_rectangles(rectangles)
+        df = pd.concat((df, rectangles), ignore_index=True)
+
+    return df
 
 
 def trim(infile, outfile):
