@@ -1,6 +1,6 @@
 # r/Place Python and Blender Data Visualization
 
-Python scripts for:
+Python scripts and instructions for:
 
 1. [Trimming and formatting the r/Place 2022 dataset](guides/1_trim_and_format.ipynb)
 2. [Generating color and age maps for use in Blender](guides/2_generate_maps.ipynb)
