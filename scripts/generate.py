@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from PIL import Image
 import numpy as np
@@ -6,9 +5,6 @@ import pandas as pd
 
 UINT16_MAX = 65_535
 TIMESTAMP_MAX = 300_589_892
-SORTED_PATH = "data/2022_place_canvas_history.parquet"
-COLOR_FRAMES_PATH = "data/frames_color/"
-AGE_FRAMES_PATH = "data/frames_age/"
 
 
 def age_to_val(px_age, compression=0.001):
@@ -125,7 +121,7 @@ def generate(
         )
 
         # Convert the NumPy array to a Pillow 16-bit Image object.
-        # FIXME: This should be a black and white image, not color.
+        # TODO: This should be a black and white image, not color.
         img_age = Image.fromarray(px_ages.astype("uint16"), "I;16")
 
         # Save the frames.
@@ -135,6 +131,10 @@ def generate(
 
 
 if __name__ == "__main__":
+    SORTED_PATH = "data/2022_place_canvas_history.parquet"
+    COLOR_FRAMES_PATH = "data/frames_color/"
+    AGE_FRAMES_PATH = "data/frames_age/"
+
     base_dir = Path(__file__).parent.parent
     sorted_abs_path = base_dir / SORTED_PATH
     color_frames_abs_path = base_dir / COLOR_FRAMES_PATH
