@@ -8,7 +8,7 @@ Python scripts and instructions for:
 
 ![The Blender logo in r/Place, rendered in Blender](images/blender-logo.jpg)
 
-The scripts can be run with Jupyter notebook guides, or by using the provided command line tool.
+The scripts can be run with Jupyter Notebook guides, or by using the provided command line tool.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ Some basic knowledge of Python and Blender is assumed. If you are a beginner, he
    poetry install
    ```
 
-## Running the Scripts with Jypyter Notebook
+## Running the Scripts with Jupyter Notebook
 
 For a tutorial-like experience, you can run the scripts in Jupyter notebook. They allow you read along with the code and see the output.
 
