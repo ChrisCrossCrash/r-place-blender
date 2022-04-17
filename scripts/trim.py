@@ -69,7 +69,75 @@ def parse_pixel_color(pixel_color):
     return hex_to_key[pixel_color]
 
 
+def process_chunk(chunk, df):
+    """Process a chunk of data and append it to a dataframe."""
+    chunk["timestamp"] = chunk["timestamp"].astype("uint32")
+    chunk["pixel_color"] = chunk["pixel_color"].astype("uint8")
+
+    # Group by point and rectangle coordinates.
+    # Points have x and y coordinates, rectangles have x1, y1, x2, y2 coordinates.
+    # We can determine the type of the coordinate by the number of commas.
+    groups = chunk.groupby(chunk["coordinate"].str.count(",") == 1)
+    rectangles = None
+    points = groups.get_group(True).reset_index(drop=True)
+    try:
+        rectangles = groups.get_group(False).reset_index(drop=True)
+    except KeyError:
+        # There are no rectangles in this chunk.
+        pass
+
+    # Convert point's coordinate column into x and y columns.
+    points["coordinate"] = points["coordinate"].apply(lambda x: x.split(","))
+    points["x"] = points["coordinate"].apply(lambda x: x[0]).astype("uint16")
+    points["y"] = points["coordinate"].apply(lambda x: x[1]).astype("uint16")
+    del points["coordinate"]
+
+    # Append the points to the dataframe.
+    df = pd.concat((df, points), ignore_index=True)
+
+    if rectangles is None:
+        # If this chunk has no rectangles.
+        return df
+
+    # Separate the rectangle coordinate string into a list of ints.
+    rectangles["coordinate"] = rectangles["coordinate"].apply(
+        lambda x: [int(c) for c in x.split(",")]
+    )
+
+    # We will convert each rectangle into several point coordinates.
+
+    # Make a new dataframe to store the points created from the rectangles.
+    pts_from_recs = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
+
+    # Iterate over the rectangles in this chunk.
+    for rect in rectangles.itertuples():
+        x1, y1, x2, y2 = rect.coordinate
+        width = x2 - x1 + 1
+        height = y2 - y1 + 1
+
+        for i in range(width):
+            for j in range(height):
+                x = x1 + i
+                y = y1 + j
+
+                pts_from_recs.loc[len(pts_from_recs)] = [
+                    rect.timestamp,
+                    rect.pixel_color,
+                    x,
+                    y,
+                ]
+
+    # Convert the columns into the correct dtypes.
+    pts_from_recs["timestamp"] = pts_from_recs["timestamp"].astype("uint32")
+    pts_from_recs["pixel_color"] = pts_from_recs["pixel_color"].astype("uint8")
+    pts_from_recs["x"] = pts_from_recs["x"].astype("uint16")
+    pts_from_recs["y"] = pts_from_recs["y"].astype("uint16")
+
+    return pd.concat((df, pts_from_recs), ignore_index=True)
+
+
 def trim(infile, outfile):
+    """Trim the infile data and write it to outfile."""
     assert outfile.name.endswith(".parquet")
 
     df = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
@@ -99,68 +167,7 @@ def trim(infile, outfile):
         for chunk in csv:
             progress_bar.update(chunk_no * CHUNK_SIZE)
             chunk_no += 1
-
-            chunk["timestamp"] = chunk["timestamp"].astype("uint32")
-            chunk["pixel_color"] = chunk["pixel_color"].astype("uint8")
-
-            # Group by number of commas in the coordinate.
-            groups = chunk.groupby(chunk["coordinate"].str.count(",") == 1)
-
-            rectangles = None
-            points = groups.get_group(True).reset_index(drop=True)
-            try:
-                rectangles = groups.get_group(False).reset_index(drop=True)
-            except KeyError:
-                # There are no rectangles in this chunk.
-                pass
-
-            # Convert the coordinate column into x and y columns.
-            points["coordinate"] = points["coordinate"].apply(lambda x: x.split(","))
-            points["x"] = points["coordinate"].apply(lambda x: x[0]).astype("uint16")
-            points["y"] = points["coordinate"].apply(lambda x: x[1]).astype("uint16")
-            del points["coordinate"]
-
-            # Append the points to the dataframe.
-            df = pd.concat((df, points), ignore_index=True)
-
-            if rectangles is None:
-                # If this chunk has no rectangles, continue with the next one.
-                continue
-
-            # Separate the rectangle coordinate string into a list of ints.
-            rectangles["coordinate"] = rectangles["coordinate"].apply(
-                lambda x: [int(c) for c in x.split(",")]
-            )
-
-            # How to make a dataframe with specific dtypes:
-            # https://stackoverflow.com/a/49183531/8886761
-
-            pts_from_recs = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
-
-            # Iterate over the rectangles in this chunk.
-            for row in rectangles.itertuples():
-                x1, y1, x2, y2 = row.coordinate
-                width = x2 - x1 + 1
-                height = y2 - y1 + 1
-
-                for i in range(width):
-                    for j in range(height):
-                        x = x1 + i
-                        y = y1 + j
-
-                        pts_from_recs.loc[len(pts_from_recs)] = [
-                            row.timestamp,
-                            row.pixel_color,
-                            x,
-                            y,
-                        ]
-
-            pts_from_recs["timestamp"] = pts_from_recs["timestamp"].astype("uint32")
-            pts_from_recs["pixel_color"] = pts_from_recs["pixel_color"].astype("uint8")
-            pts_from_recs["x"] = pts_from_recs["x"].astype("uint16")
-            pts_from_recs["y"] = pts_from_recs["y"].astype("uint16")
-
-            df = pd.concat((df, pts_from_recs), ignore_index=True)
+            df = process_chunk(chunk, df)
 
     df["timestamp"] = df["timestamp"].astype("uint32")
 
