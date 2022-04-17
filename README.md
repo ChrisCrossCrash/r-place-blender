@@ -27,7 +27,8 @@ Some basic knowledge of Python and Blender is assumed. If you are a beginner, he
 
 1. Install [Python](https://www.python.org/) and [Blender](https://www.blender.org/download/) if you haven't already.
 2. Clone this repository (or download it as a Zip file and extract).
-3. Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) as a single file. Do not extract it.
+   ![How to download the repository as a zip file](images/download-zip.jpg)
+3. Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) (named `canvas-history/2022_place_canvas_history.csv.gzip`) as a single file. Do not extract it.
 4. Open the repository in a terminal and create a new virtual environment with:
    ```
    python3 -m venv .venv
