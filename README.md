@@ -3,7 +3,7 @@
 Python scripts and instructions for:
 
 1. [Trimming and formatting the r/Place 2022 dataset](guides/1_trim_and_format.ipynb)
-2. [Generating color and age maps for use in Blender](guides/2_generate_maps.ipynb)
+2. [Generating color and heat maps for use in Blender](guides/2_generate_maps.ipynb)
 3. [Rendering r/Place in 3D with Blender](guides/3_blender.md)
 
 ![The Blender logo in r/Place, rendered in Blender](images/blender-logo.jpg)
@@ -18,7 +18,7 @@ The scripts can be run with Jupyter Notebook guides, or by using the provided co
 - ~15 GB of free space on the hard drive (until the raw data is trimmed)
 - It helps to have a powerful GPU for rendering the frames in Blender.
 
-Some basic knowledge of Python and Blender is assumed. If you are a beginner, here are some Tutorials I highly recommend:
+Some basic knowledge of Python and Blender is assumed. It also helps if you know the Pandas and NumPy (the Python libraries). If you are a beginner, here are some Tutorials I highly recommend:
 
 - [Corey Schafer Python Tutorial Playlist](https://youtube.com/playlist?list=PL-osiE80TeTskrapNbzXhwoFUiLCjGgY7)
 - [Blender Guru Donut Tutorial Playlist](https://youtube.com/playlist?list=PLjEaoINr3zgFX8ZsChQVQsuDSjEqdWMAD)
@@ -79,10 +79,10 @@ Process the raw data and save it in `2022_place_canvas_history.parquet`:
 ```
 python scripts/cli.py trim data/2022_place_canvas_history.csv.gzip data/2022_place_canvas_history.parquet
 ```
-Starting at the 72-hour mark, generate 1000 frames at 30 FPS at 1000x speed. Store the results in `data/frames_color` and `data/frames_age`:
+Starting at the 72-hour mark, generate 1000 frames at 30 FPS at 1000x speed. Store the results in `data/frames_color` and `data/frames_heat`:
 
 ```
-python scripts/cli.py generate data/2022_place_canvas_history.parquet data/frames_color data/frames_age --start_ms 259200000 --timescale 1000 --frames 1000 --fps 30
+python scripts/cli.py generate data/2022_place_canvas_history.parquet data/frames_color data/frames_heat --start_ms 259200000 --timescale 1000 --frames 1000 --fps 30
 ```
 
 ## Development
