@@ -17,21 +17,15 @@ def trim_command(args):
 
 
 def generate_command(args):
-    infile = args.infile
-    colorpath = args.colorpath
-    agepath = args.agepath
-    start_ms = args.start_ms
-    timescale = args.timescale
-    frames = args.frames
-    fps = args.fps
     generate(
-        infile,
-        colorpath,
-        agepath,
-        start_ms=start_ms,
-        timescale=timescale,
-        frames=frames,
-        fps=fps,
+        args.infile,
+        args.colorpath,
+        args.datapath,
+        start_ms=args.start_ms,
+        timescale=args.timescale,
+        frames=args.frames,
+        fps=args.fps,
+        heat_half_life=args.half_life,
     )
 
 
@@ -86,6 +80,19 @@ def parse_args():
     )
     parser_generate.add_argument(
         "--fps", type=int, help="The number of frames per second.", default=60
+    )
+    parser_generate.add_argument(
+        "--half_life",
+        type=int,
+        help="The half life of the heat map.",
+        default=10 * 60 * 1000,
+    )
+    parser_generate.add_argument(
+        "--scale_height",
+        type=float,
+        help="The change in height at which the height increase"
+        " for changed pixels is reduced by a factor of e.",
+        default=0.3,
     )
     parser_generate.set_defaults(func=generate_command)
 
