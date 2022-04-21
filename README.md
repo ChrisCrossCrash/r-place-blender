@@ -104,6 +104,10 @@ Use the following command to generate a new `requirements.txt` file for non-Poet
 poetry export --without-hashes > requirements.txt
 ```
 
+## Older "Age Map" Version
+
+This project has recently updated to use "heat maps" instead of "age maps". You can still find the older version [here](https://github.com/ChrisCrossCrash/r-place-blender/tree/98994aedaa6673cfd22bab4985141482106278ee).
+
 ## Other Fun Stuff
 
 - [the r/Place Atlas (2022)](https://place-atlas.stefanocoding.me/): A searchable map of the r/Place canvas descriptions of all the different artworks.
