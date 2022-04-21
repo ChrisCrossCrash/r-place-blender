@@ -69,7 +69,7 @@ For a tutorial-like experience, you can run the scripts in Jupyter notebook. The
 
 In the command line, `cd` into the root of this repository. With the virtual environment activated, open the notebook by entering the following command and clicking on one of the listed guides:
 ```
-jupyter notebook guide
+jupyter notebook guides
 ```
 Follow the guide and execute the code cells to execute each step of the process.
 
