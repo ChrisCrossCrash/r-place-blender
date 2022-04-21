@@ -4,6 +4,7 @@ import os
 import argparse
 from trim import trim
 from generate import generate
+from crop_dir import crop_dir
 from pathlib import Path
 
 
@@ -27,6 +28,16 @@ def generate_command(args):
         fps=args.fps,
         heat_half_life=args.half_life,
     )
+
+
+def crop_dir_command(args):
+    in_dir = args.in_dir
+    out_dir = args.out_dir
+    x1 = args.x1
+    y1 = args.y1
+    x2 = args.x2
+    y2 = args.y2
+    crop_dir(in_dir, out_dir, x1, y1, x2, y2)
 
 
 def dir_path(string):
@@ -67,7 +78,7 @@ def parse_args():
         "colorpath", help="The path to save the color map PNG images to.", type=dir_path
     )
     parser_generate.add_argument(
-        "agepath", help="The path to save the age map PNG images to.", type=dir_path
+        "datapath", help="The path to save the age map PNG images to.", type=dir_path
     )
     parser_generate.add_argument(
         "--start_ms", type=int, help="The start timestamp in milliseconds.", default=0
@@ -95,6 +106,33 @@ def parse_args():
         default=0.3,
     )
     parser_generate.set_defaults(func=generate_command)
+
+    parser_crop_dir = subparsers.add_parser(
+        "cropdir", help="Crop a directory of images."
+    )
+    parser_crop_dir.add_argument(
+        "in_dir",
+        help="The path to the directory of images to crop.",
+        type=dir_path,
+    )
+    parser_crop_dir.add_argument(
+        "out_dir",
+        help="The path to the directory to save the cropped images to.",
+        type=dir_path,
+    )
+    parser_crop_dir.add_argument(
+        "x1", type=int, help="The x-coordinate of the top left corner (inclusive)."
+    )
+    parser_crop_dir.add_argument(
+        "y1", type=int, help="The y-coordinate of the top left corner (inclusive)."
+    )
+    parser_crop_dir.add_argument(
+        "x2", type=int, help="The x-coordinate of the bottom right corner (exclusive)."
+    )
+    parser_crop_dir.add_argument(
+        "y2", type=int, help="The y-coordinate of the bottom right corner (exclusive)."
+    )
+    parser_crop_dir.set_defaults(func=crop_dir_command)
 
     return parser.parse_args()
 
