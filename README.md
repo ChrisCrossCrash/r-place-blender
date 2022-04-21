@@ -1,12 +1,12 @@
 # r/Place Python and Blender Data Visualization
 
+![the creation of the Star Wars poster in r/Place 2022](/images/star_wars.gif)
+
 Python scripts and instructions for:
 
 1. [Trimming and formatting the r/Place 2022 dataset](guides/1_trim_and_format.ipynb)
 2. [Generating color and heat maps for use in Blender](guides/2_generate_maps.ipynb)
 3. [Rendering r/Place in 3D with Blender](guides/3_blender.md)
-
-![The Blender logo in r/Place, rendered in Blender](images/blender-logo.jpg)
 
 The scripts can be run with Jupyter Notebook guides, or by using the provided command line tool.
 
