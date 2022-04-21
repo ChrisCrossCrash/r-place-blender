@@ -10,6 +10,16 @@ Python scripts and instructions for:
 
 The scripts can be run with Jupyter Notebook guides, or by using the provided command line tool.
 
+## What is r/Place?
+
+Starting April 1st 2022, the social news website [Reddit](https://www.reddit.com) hosted [r/Place](https://www.reddit.com/r/place) - an event where users could place pixels on a shared canvas. Each user was only allowed to place one pixel every five minutes. Various communities organized efforts to create complex works of art. In total, the event lasted four days with over six million participants. Over 160 million pixels were placed on the canvas.
+
+## What is This Project?
+
+Reddit released a [dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) containing the timestamp, hashed user ID, color, and x,y coordinate of every pixel placed during the whole event as an 11 GB CSV file with over 160 million rows.
+
+This project takes that data, trims it down to a size around 1 GB, generates color and "heat" maps, and uses those maps to make beautiful 3D images and time lapses using the open source 3D software, [Blender](https://www.blender.org/).
+
 ## Prerequisites
 
 - Python >=3.10 (tested on 3.10.2)
