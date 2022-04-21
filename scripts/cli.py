@@ -67,7 +67,7 @@ def parse_args():
     parser_trim.set_defaults(func=trim_command)
 
     parser_generate = subparsers.add_parser(
-        "generate", help="Generate age and color maps from the sorted parquet dataset."
+        "generate", help="Generate heat and color maps from the sorted parquet dataset."
     )
     parser_generate.add_argument(
         "infile",
@@ -78,7 +78,7 @@ def parse_args():
         "colorpath", help="The path to save the color map PNG images to.", type=dir_path
     )
     parser_generate.add_argument(
-        "datapath", help="The path to save the age map PNG images to.", type=dir_path
+        "datapath", help="The path to save the heat map PNG images to.", type=dir_path
     )
     parser_generate.add_argument(
         "--start_ms", type=int, help="The start timestamp in milliseconds.", default=0

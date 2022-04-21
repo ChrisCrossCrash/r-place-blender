@@ -162,17 +162,17 @@ def generate(
 if __name__ == "__main__":
     SORTED_PATH = "data/2022_place_canvas_history.parquet"
     COLOR_FRAMES_PATH = "data/frames_color/"
-    AGE_FRAMES_PATH = "data/frames_age/"
+    HEAT_FRAMES_PATH = "data/frames_heat/"
 
     base_dir = Path(__file__).parent.parent
     sorted_abs_path = base_dir / SORTED_PATH
     color_frames_abs_path = base_dir / COLOR_FRAMES_PATH
-    age_frames_abs_path = base_dir / AGE_FRAMES_PATH
+    heat_frames_abs_path = base_dir / HEAT_FRAMES_PATH
 
     generate(
         sorted_abs_path,
         color_frames_abs_path,
-        age_frames_abs_path,
+        heat_frames_abs_path,
         start_ms=100_00_000,
         frames=20,
     )
