@@ -25,8 +25,8 @@ This project takes that data, trims it down to a size around 1 GB, generates col
 - Python >=3.10 (tested on 3.10.2)
 - Blender >=3.1 (tested on 3.1.2)
 - ~4 GB of free RAM (for processing the data)
-- ~15 GB of free space on the hard drive (until the raw data is trimmed)
-- It helps to have a powerful GPU for rendering the frames in Blender.
+- ~15 GB of free space of storage space (until the raw data is trimmed)
+- It helps to have a powerful GPU for rendering but not needed. I've finished all my renders on my four year old mid-range laptop.
 
 Some basic knowledge of Python and Blender is assumed. It also helps if you know the Pandas and NumPy (the Python libraries). If you are a beginner, here are some Tutorials I highly recommend:
 
