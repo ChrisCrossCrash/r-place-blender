@@ -166,7 +166,8 @@ cython_debug/
 /frames_color
 /renders
 /videos
-/data
 /music
 /cspell.json
 /.vscode
+/data/2022_place_canvas_history.parquet
+/data/2022_place_canvas_history.csv.gzip
