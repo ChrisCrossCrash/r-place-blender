@@ -46,6 +46,12 @@ Some basic knowledge of Python and Blender is assumed. It also helps if you know
    ```
    python3 -m venv .venv
    ```
+   If that doesn't work, try it without the `3` after `python`:
+   ```
+   python -m venv .venv
+   ```
+   If it still doesn't work, then you probably didn't [add Python to your PATH](https://datatofish.com/add-python-to-windows-path/).
+
 5. Activate the virtual environment with:
 
    Windows:
