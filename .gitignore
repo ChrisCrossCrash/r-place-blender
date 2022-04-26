@@ -171,3 +171,4 @@ cython_debug/
 /.vscode
 /data/2022_place_canvas_history.parquet
 /data/2022_place_canvas_history.csv.gzip
+/gitignored
