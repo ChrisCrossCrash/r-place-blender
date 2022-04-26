@@ -198,8 +198,6 @@ def trim(infile, outfile):
             chunk_no += 1
             df = process_chunk(chunk, df)
 
-    df["timestamp"] = df["timestamp"].astype("uint32")
-
     df.sort_values("timestamp", inplace=True, ignore_index=True)
     df.to_parquet(
         outfile,
