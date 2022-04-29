@@ -27,6 +27,7 @@ def generate_command(args):
         frames=args.frames,
         fps=args.fps,
         heat_half_life=args.half_life,
+        start_frame=args.start_frame,
     )
 
 
@@ -104,6 +105,12 @@ def parse_args():
         help="The change in height at which the height increase"
         " for changed pixels is reduced by a factor of e.",
         default=0.3,
+    )
+    parser_generate.add_argument(
+        "--start_frame",
+        type=int,
+        help="The frame to start generating heat maps at. This only affects the file names.",
+        default=0,
     )
     parser_generate.set_defaults(func=generate_command)
 
