@@ -38,6 +38,7 @@ def generate(
     fps=60,
     heat_half_life=10 * 60 * 1000,
     scale_height=0.3,
+    start_frame=0,
 ):
     """Generate the age and color frames for the given file."""
 
@@ -103,8 +104,11 @@ def generate(
 
     print("Calculating heat map buffer...")
 
+    # Offset the number frames to render by the start frame.
+    frames += start_frame
+
     # Iterate through the frames.
-    frame_no = 0
+    frame_no = start_frame
     for ms in range(calculation_start_time, TIMESTAMP_MAX, dt):
         # Stop after the last frame.
         if frame_no >= frames:
