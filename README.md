@@ -38,9 +38,9 @@ Some basic knowledge of Python and Blender is assumed. It also helps if you know
 1. Install [Python](https://www.python.org/) and [Blender](https://www.blender.org/download/) if you haven't already.
 2. Clone this repository (or download it as a Zip file and extract).
    ![How to download the repository as a zip file](images/download-zip.jpg)
-3. <s>Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) (named `canvas-history/2022_place_canvas_history.csv.gzip`) as a single file. Do not extract it.</s>
+3. Download the [r/Place 2022 dataset](https://www.reddit.com/r/place/comments/txvk2d/rplace_datasets_april_fools_2022/) (named `canvas-history/2022_place_canvas_history.csv.gzip`) as a single file. Do not extract it.
 
-    __EDIT__: It's been brought to my attention that the Reddit download links are no longer working. I've uploaded the [trimmed down `.parquet` file to Kaggle](https://www.kaggle.com/datasets/chriscrosscrash/rplace-2022-data-sorted-by-time-without-user-ids). It's the end product of the [Trim and Format step](https://github.com/ChrisCrossCrash/r-place-blender/blob/master/guides/1_trim_and_format.ipynb). This actually might be better for you, since the file size is much smaller and you don't need to trim and sort the data.
+    __Pre-formatted alternative download__: I've uploaded the [trimmed down `.parquet` file to Kaggle](https://www.kaggle.com/datasets/chriscrosscrash/rplace-2022-data-sorted-by-time-without-user-ids). It's the end product of the [Trim and Format step](https://github.com/ChrisCrossCrash/r-place-blender/blob/master/guides/1_trim_and_format.ipynb). This actually might be better for you, since the file size is much smaller and you don't need to trim and sort the data.
 
 4. Open the repository in a terminal and create a new virtual environment with:
    ```
