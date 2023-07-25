@@ -1,5 +1,9 @@
 # r/Place Python and Blender Data Visualization
 
+A project for visualizing the [2022 r/Place](https://www.reddit.com/r/place) dataset using Python and Blender.
+
+> **Coming soon!**: I'll begin work on r/place 2023 as soon as Reddit releases the dataset. Stay tuned!
+
 ![the creation of the Star Wars poster in r/Place 2022](/images/star_wars.gif)
 
 Python scripts and instructions for:
