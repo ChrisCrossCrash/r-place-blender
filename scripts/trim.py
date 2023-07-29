@@ -81,8 +81,8 @@ def split_coords_single_points(points):
     points["coordinate"] = points["coordinate"].apply(lambda x: x.split(","))
 
     # Create new x and y columns from the coordinate column.
-    points["x"] = points["coordinate"].apply(lambda x: x[0]).astype("uint16")
-    points["y"] = points["coordinate"].apply(lambda x: x[1]).astype("uint16")
+    points["x"] = points["coordinate"].apply(lambda x: int(x[0])).astype("int16")
+    points["y"] = points["coordinate"].apply(lambda x: int(x[1])).astype("int16")
 
     # Drop the coordinate column.
     del points["coordinate"]
@@ -127,8 +127,8 @@ def split_coords_rectangles(rectangles):
     # Convert the columns into the correct dtypes.
     pts_from_recs["timestamp"] = pts_from_recs["timestamp"].astype("uint32")
     pts_from_recs["pixel_color"] = pts_from_recs["pixel_color"].astype("uint8")
-    pts_from_recs["x"] = pts_from_recs["x"].astype("uint16")
-    pts_from_recs["y"] = pts_from_recs["y"].astype("uint16")
+    pts_from_recs["x"] = pts_from_recs["x"].astype("int16")
+    pts_from_recs["y"] = pts_from_recs["y"].astype("int16")
 
     return pts_from_recs
 
@@ -172,8 +172,8 @@ def trim(infile, outfile):
     df = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
     df["timestamp"] = df["timestamp"].astype("uint32")
     df["pixel_color"] = df["pixel_color"].astype("uint8")
-    df["x"] = df["x"].astype("uint16")
-    df["y"] = df["y"].astype("uint16")
+    df["x"] = df["x"].astype("int16")
+    df["y"] = df["y"].astype("int16")
 
     file_size_bytes = os.path.getsize(infile.name)
     approx_lines_per_byte = 0.013
