@@ -4,6 +4,15 @@ A project for visualizing the 2022 [r/Place](https://www.reddit.com/r/place) dat
 
 > I'm currently working on updating this repository for r/place 2023. Check out the [`r-place-2023` branch](https://github.com/ChrisCrossCrash/r-place-blender/tree/r-place-2023) to see my progress.
 
+## r/place 2023 TODO list
+
+To simply get the project working for r/place 2023, I need to do the following:
+- [x] rewrite [`scripts/trim.py`](scripts/trim.py) for r/place 2023
+- [ ] Rewrite [`guides/2_generate_maps.ipynb`](guides/2_generate_maps.ipynb) for r/place 2023
+- [ ] Test loading the maps into Blender
+
+The other guides and scripts can be updated later.
+
 ![the creation of the Star Wars poster in r/Place 2022](/images/star_wars.gif)
 
 Python scripts and instructions for:
