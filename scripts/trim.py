@@ -193,11 +193,11 @@ def process_chunk(chunk, df):
     # Points have x and y coordinates, rectangles have x1, y1, x2, y2 coordinates.
     # Circles have a JSON-like coordinate string "{X: _, Y: _, R: _}".
     # We can determine the type of the coordinate by the pattern of the string.
-    rectangle_pattern = r"\d+,\d+,\d+,\d+"
-    circle_pattern = r"{X: \d+, Y: \d+, R: \d+}"
+    rectangle_pattern = r"-?\d+,-?\d+,-?\d+,-?\d+"
+    point_pattern = r"-?\d+,-?\d+"
     is_rectangle = chunk["coordinate"].str.contains(rectangle_pattern)
-    is_circle = chunk["coordinate"].str.contains(circle_pattern)
-    is_point = ~(is_rectangle | is_circle)
+    is_point = chunk["coordinate"].str.contains(point_pattern)
+    is_circle = ~(is_rectangle | is_point)
 
     points = chunk[is_point].reset_index(drop=True)
     rectangles = chunk[is_rectangle].reset_index(drop=True)
