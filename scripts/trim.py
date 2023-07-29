@@ -1,17 +1,19 @@
-import os
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
 from progressbar import ProgressBar
 import re
 import math
+import urllib.request
+from io import BytesIO
 
 
+# First pixel: 2023-07-20 13:00:26.088 UTC
+START_TIME = 1689876026088
 CHUNK_SIZE = 1_000_000
-START_TIME = 1648806250315
 
 
-def parse_timestamp(timestamp):
+def parse_timestamp(timestamp: str) -> int:
     """Convert a YYYY-MM-DD HH:MM:SS.SSS timestamp to milliseconds after the start of r/Place 2022."""
     date_format = "%Y-%m-%d %H:%M:%S.%f"
     try:
@@ -33,7 +35,7 @@ def parse_timestamp(timestamp):
     return timestamp
 
 
-def parse_pixel_color(pixel_color):
+def parse_pixel_color(pixel_color: str) -> int:
     """Convert a hex color code to an integer key."""
     hex_to_key = {
         "#000000": 0,
@@ -73,7 +75,7 @@ def parse_pixel_color(pixel_color):
     return hex_to_key[pixel_color]
 
 
-def split_coords_single_points(points):
+def split_coords_single_points(points: pd.DataFrame) -> pd.DataFrame:
     """
     Given a dataframe containing only rows that have single-point
     coordinates, split the coordinates into x and y columns.
@@ -92,7 +94,7 @@ def split_coords_single_points(points):
     return points
 
 
-def split_coords_rectangles(rectangles):
+def split_coords_rectangles(rectangles) -> pd.DataFrame:
     """
     Given a dataframe containing only rows that have rectangle coordinates,
     convert the rectangle rows to point rows with x and y columns.
@@ -102,8 +104,6 @@ def split_coords_rectangles(rectangles):
     rectangles["coordinate"] = rectangles["coordinate"].apply(
         lambda x: [int(c) for c in x.split(",")]
     )
-
-    # We will convert each rectangle into several point coordinates.
 
     # Make a new dataframe to store the points created from the rectangles.
     pts_from_recs = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
@@ -135,7 +135,7 @@ def split_coords_rectangles(rectangles):
     return pts_from_recs
 
 
-def split_coords_circles(circles):
+def split_coords_circles(circles) -> pd.DataFrame:
     """
     Given a dataframe containing only rows that have circle coordinates,
     convert the circle rows to point rows with x and y columns.
@@ -183,7 +183,7 @@ def split_coords_circles(circles):
     return pts_from_circles
 
 
-def process_chunk(chunk, df):
+def process_chunk(chunk: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
     """Process a chunk of data and append it to a dataframe."""
     # Convert the timestamp and pixel_color columns to the correct dtypes.
     chunk["timestamp"] = chunk["timestamp"].astype("uint32")
@@ -222,22 +222,12 @@ def process_chunk(chunk, df):
     return df
 
 
-def trim(infile, outfile):
-    """Trim the infile data and write it to outfile."""
-    assert outfile.name.endswith(".parquet")
-
-    df = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
-    df["timestamp"] = df["timestamp"].astype("uint32")
-    df["pixel_color"] = df["pixel_color"].astype("uint8")
-    df["x"] = df["x"].astype("int16")
-    df["y"] = df["y"].astype("int16")
-
-    file_size_bytes = os.path.getsize(infile.name)
-    approx_lines_per_byte = 0.013
-    file_approx_lines = int(file_size_bytes * approx_lines_per_byte)
+def process_data(file: BytesIO) -> pd.DataFrame:
+    """Process the raw data and return a dataframe."""
+    df = pd.DataFrame()
 
     with pd.read_csv(
-        infile,
+        file,
         usecols=["timestamp", "pixel_color", "coordinate"],
         converters={
             "timestamp": parse_timestamp,
@@ -247,36 +237,61 @@ def trim(infile, outfile):
         engine="c",
         compression={"method": "gzip"},
     ) as csv:
-        progress_bar = ProgressBar(max_value=file_approx_lines)
-        progress_bar.update(0)
         chunk_no = 0
         for chunk in csv:
-            progress_bar.update(chunk_no * CHUNK_SIZE)
             chunk_no += 1
             df = process_chunk(chunk, df)
 
-    df.sort_values("timestamp", inplace=True, ignore_index=True)
-    df.to_parquet(
+    return df
+
+
+if __name__ == "__main__":
+    df_main = pd.DataFrame()
+
+    # Reddit released the dataset in 52 files.
+    total_files = 52
+
+    progress_bar = ProgressBar(max_value=total_files).start()
+
+    for i in range(total_files):
+        # Convert i to a two-digit string
+        file_num_str = str(i).zfill(2)
+
+        url = (
+            f"https://placedata.reddit.com/data/canvas-history/2023/"
+            f"2023_place_canvas_history-0000000000{file_num_str}.csv.gzip"
+        )
+
+        # Try to download and load the file into the main dataframe
+        try:
+            with urllib.request.urlopen(url) as response:
+                file = BytesIO(response.read())
+        except Exception as e:
+            print(f"\nFailed to get file from {url}. Error: {e}")
+            exit(1)
+
+        df_this_file = process_data(file)
+        df_main = pd.concat([df_main, df_this_file])
+
+        progress_bar.update(i + 1)
+
+    # Finish the progress bar
+    progress_bar.finish()
+
+    # Sorting the master dataframe
+    df_main.sort_values("timestamp", inplace=True, ignore_index=True)
+
+    # Save the final dataframe to a parquet file
+    OUTFILE_PATH = "data/test_trimmed.parquet"
+    base_dir = Path(__file__).resolve().parent.parent
+    outfile = base_dir / OUTFILE_PATH
+    df_main.to_parquet(
         outfile,
         # The default pyarrow version is 1.0, which changes the timestamp column to int64.
         # https://github.com/pandas-dev/pandas/issues/37327
         # https://issues.apache.org/jira/browse/ARROW-9215
         version="2.6",
     )
-
-
-if __name__ == "__main__":
-    INFILE_PATH = "data/2022_place_canvas_history.csv.gzip"
-    OUTFILE_PATH = "data/test_trimmed.parquet"
-
-    base_dir = Path(__file__).resolve().parent.parent
-
-    infile = base_dir / INFILE_PATH
-    outfile = base_dir / OUTFILE_PATH
-
-    with infile.open("rb") as f_in:
-        with outfile.open("wb") as f_out:
-            trim(f_in, f_out)
 
     # Print the result.
     df = pd.read_parquet(outfile)
