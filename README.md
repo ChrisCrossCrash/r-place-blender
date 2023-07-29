@@ -8,8 +8,8 @@ A project for visualizing the 2022 [r/Place](https://www.reddit.com/r/place) dat
 
 To simply get the project working for r/place 2023, I need to do the following:
 - [x] rewrite [`scripts/trim.py`](scripts/trim.py) for r/place 2023
-- [ ] Rewrite [`guides/2_generate_maps.ipynb`](guides/2_generate_maps.ipynb) for r/place 2023
-- [ ] Test loading the maps into Blender
+- [x] Rewrite [`guides/2_generate_maps.ipynb`](guides/2_generate_maps.ipynb) for r/place 2023
+- [ ] Fix the ``r-place.blend` file so that it works with r/place 2023
 
 The other guides and scripts can be updated later.
 
