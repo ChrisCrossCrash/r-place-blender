@@ -2,7 +2,7 @@
 
 A project for visualizing the 2022 [r/Place](https://www.reddit.com/r/place) dataset using Python and Blender.
 
-> **Coming soon!**: I'll begin work on r/place 2023 as soon as Reddit releases the dataset. Stay tuned!
+> I'm currently working on updating this repository for r/place 2023. Check out the [`r-place-2023` branch](https://github.com/ChrisCrossCrash/r-place-blender/tree/r-place-2023) to see my progress.
 
 ![the creation of the Star Wars poster in r/Place 2022](/images/star_wars.gif)
 
