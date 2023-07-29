@@ -3,6 +3,8 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 from progressbar import ProgressBar
+import re
+import math
 
 
 CHUNK_SIZE = 1_000_000
@@ -133,23 +135,73 @@ def split_coords_rectangles(rectangles):
     return pts_from_recs
 
 
+def split_coords_circles(circles):
+    """
+    Given a dataframe containing only rows that have circle coordinates,
+    convert the circle rows to point rows with x and y columns.
+    """
+
+    # Make a new dataframe to store the points created from the circles.
+    pts_from_circles = pd.DataFrame(columns=["timestamp", "pixel_color", "x", "y"])
+
+    # Extract the x, y and r values from the circle coordinates.
+    pattern = re.compile(r"{X: (?P<x>-?\d+), Y: (?P<y>-?\d+), R: (?P<r>\d+)}")
+    circles["coordinate"] = circles["coordinate"].apply(
+        lambda x: pattern.match(x).groupdict()
+    )
+
+    # Iterate over the circles in this chunk.
+    for circle in circles.itertuples():
+        x_center, y_center, r = (
+            int(circle.coordinate["x"]),
+            int(circle.coordinate["y"]),
+            int(circle.coordinate["r"]),
+        )
+
+        # Start with a rectangle that contains the circle.
+        x1, y1 = x_center - r, y_center - r
+        x2, y2 = x_center + r, y_center + r
+
+        # Iterate over the points in the rectangle.
+        # If the point is within the circle, add it to the dataframe.
+        for x in range(x1, x2 + 1):
+            for y in range(y1, y2 + 1):
+                if math.hypot(x - x_center, y - y_center) <= r:
+                    pts_from_circles.loc[len(pts_from_circles)] = [
+                        circle.timestamp,
+                        circle.pixel_color,
+                        x,
+                        y,
+                    ]
+
+    # Convert the columns into the correct dtypes.
+    pts_from_circles["timestamp"] = pts_from_circles["timestamp"].astype("uint32")
+    pts_from_circles["pixel_color"] = pts_from_circles["pixel_color"].astype("uint8")
+    pts_from_circles["x"] = pts_from_circles["x"].astype("int16")
+    pts_from_circles["y"] = pts_from_circles["y"].astype("int16")
+
+    return pts_from_circles
+
+
 def process_chunk(chunk, df):
     """Process a chunk of data and append it to a dataframe."""
     # Convert the timestamp and pixel_color columns to the correct dtypes.
     chunk["timestamp"] = chunk["timestamp"].astype("uint32")
     chunk["pixel_color"] = chunk["pixel_color"].astype("uint8")
 
-    # Group by point and rectangle coordinates.
+    # Group by point, rectangle, and circle coordinates.
     # Points have x and y coordinates, rectangles have x1, y1, x2, y2 coordinates.
-    # We can determine the type of the coordinate by the number of commas.
-    groups = chunk.groupby(chunk["coordinate"].str.count(",") == 1)
-    rectangles = None
-    points = groups.get_group(True).reset_index(drop=True)
-    try:
-        rectangles = groups.get_group(False).reset_index(drop=True)
-    except KeyError:
-        # There are no rectangles in this chunk.
-        pass
+    # Circles have a JSON-like coordinate string "{X: _, Y: _, R: _}".
+    # We can determine the type of the coordinate by the pattern of the string.
+    rectangle_pattern = r"\d+,\d+,\d+,\d+"
+    circle_pattern = r"{X: \d+, Y: \d+, R: \d+}"
+    is_rectangle = chunk["coordinate"].str.contains(rectangle_pattern)
+    is_circle = chunk["coordinate"].str.contains(circle_pattern)
+    is_point = ~(is_rectangle | is_circle)
+
+    points = chunk[is_point].reset_index(drop=True)
+    rectangles = chunk[is_rectangle].reset_index(drop=True)
+    circles = chunk[is_circle].reset_index(drop=True)
 
     # Convert point's coordinate column into x and y columns.
     points = split_coords_single_points(points)
@@ -158,9 +210,14 @@ def process_chunk(chunk, df):
     df = pd.concat((df, points), ignore_index=True)
 
     # If this chunk has rectangles, convert them into point coordinates.
-    if rectangles is not None:
+    if not rectangles.empty:
         rectangles = split_coords_rectangles(rectangles)
         df = pd.concat((df, rectangles), ignore_index=True)
+
+    # If this chunk has circles, convert them into point coordinates.
+    if not circles.empty:
+        circles = split_coords_circles(circles)
+        df = pd.concat((df, circles), ignore_index=True)
 
     return df
 
