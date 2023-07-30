@@ -40,7 +40,7 @@ def generate(
     scale_height=0.3,
     start_frame=0,
 ):
-    """Generate the age and color frames for the given file."""
+    """Generate the heat and color frames for the given file."""
 
     df = pd.read_parquet(infile)
 
@@ -85,8 +85,8 @@ def generate(
     )
 
     # Generate the canvases to hold the running values
-    img_color = np.full((2000, 2000, 3), 255, dtype=np.uint8)
-    img_heat = np.zeros((2000, 2000), dtype=np.float32)
+    img_color = np.full((2000, 2999, 3), 255, dtype=np.uint8)
+    img_heat = np.zeros((2000, 2999), dtype=np.float32)
 
     # Create an iterator that yields the rows of the dataset in order.
     px_iterator = df.itertuples()
@@ -116,15 +116,20 @@ def generate(
 
         # Draw pixels where timestamp <= ms
         while px.timestamp <= ms:
+            # 0, 0 is the center of the canvas. We need to add 1500 to x and
+            # 1000 to y so that 0, 0 is the top left corner.
+            x_pos = px.x + 1500
+            y_pos = px.y + 1000
+
             # Draw the pixel's color to the color canvas.
-            img_color[px.y, px.x] = indexed_rgb[px.pixel_color]
+            img_color[y_pos, x_pos] = indexed_rgb[px.pixel_color]
 
             # Make the added height for new pixels
             #  decay exponentially with initial height.
             H_0 = 0.1
-            img_heat[px.y, px.x] += calculate_pressure(
+            img_heat[y_pos, x_pos] += calculate_pressure(
                 H_0,  # Height increase for a pixel with starting height of 0
-                img_heat[px.y, px.x],  # Initial height of this pixel
+                img_heat[y_pos, x_pos],  # Initial height of this pixel
                 scale_height,
             )
 
@@ -143,7 +148,7 @@ def generate(
             # Don't save the frame if it's before the start time.
             continue
 
-        zero_arr = np.zeros((2000, 2000), dtype=np.float32)
+        zero_arr = np.zeros((2000, 2999), dtype=np.float32)
         img_data = np.dstack((zero_arr, img_heat, zero_arr))
 
         print(f"Saving frame {frame_no}")
