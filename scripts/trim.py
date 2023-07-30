@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
 from progressbar import ProgressBar
@@ -9,7 +9,7 @@ from io import BytesIO
 
 
 # First pixel: 2023-07-20 13:00:26.088 UTC
-START_TIME = 1689876026088
+START_TIME = 1689858026088
 CHUNK_SIZE = 1_000_000
 
 
@@ -18,17 +18,17 @@ def parse_timestamp(timestamp: str) -> int:
     date_format = "%Y-%m-%d %H:%M:%S.%f"
     try:
         # Remove the UTC timezone from the timestamp and convert it to a POSIX timestamp.
-        timestamp = datetime.strptime(timestamp[:-4], date_format).timestamp()
+        timestamp = datetime.strptime(timestamp[:-4], date_format).replace(tzinfo=timezone.utc).timestamp()
     except ValueError:
         # The timestamp is exactly on the second, so there is no decimal (%f).
         # This happens 1/1000 of the time.
-        timestamp = datetime.strptime(timestamp[:-4], date_format[:-3]).timestamp()
+        timestamp = datetime.strptime(timestamp[:-4], date_format[:-3]).replace(tzinfo=timezone.utc).timestamp()
 
     # Convert from a float in seconds to an int in milliseconds
     timestamp *= 1000.0
     timestamp = int(timestamp)
 
-    # The earliest timestamp is 1648806250315, so subtract that from each timestamp
+    # The earliest timestamp is 1689858026088, so subtract that from each timestamp
     # to get the time in milliseconds since the beginning of the experiment.
     timestamp -= START_TIME
 
