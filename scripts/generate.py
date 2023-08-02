@@ -153,17 +153,26 @@ def generate(
 
         print(f"Saving frame {frame_no}")
 
-        # Save the frames.
-        imageio.imwrite(
-            colorpath / f"frame-{str(frame_no).zfill(4)}.png",
-            img_color,
-            optimize=True,
-        )
+        color_file_name = colorpath / f"frame-{str(frame_no).zfill(4)}.png"
+        heat_file_name = datapath / f"frame-{str(frame_no).zfill(4)}.exr"
 
-        imageio.imwrite(
-            datapath / f"frame-{str(frame_no).zfill(4)}.exr",
-            img_data,
-        )
+        # Save the frames if they don't already exist.
+        if not color_file_name.exists():
+            imageio.imwrite(
+                color_file_name,
+                img_color,
+                optimize=True,
+            )
+        else:
+            print(f"{color_file_name} already exists. Skipping...")
+
+        if not heat_file_name.exists():
+            imageio.imwrite(
+                heat_file_name,
+                img_data,
+            )
+        else:
+            print(f"{heat_file_name} already exists. Skipping...")
 
         frame_no += 1
 
